@@ -9,8 +9,7 @@
   * [Reproducibility](#reproducibility)
 * [Main arguments](#main-arguments)
   * [`-profile`](#-profile)
-  * [`--reads`](#--reads)
-  * [`--single_end`](#--single_end)
+  * [`--input`](#--input)
 * [Reference genomes](#reference-genomes)
   * [`--genome` (using iGenomes)](#--genome-using-igenomes)
   * [`--fasta`](#--fasta)
@@ -24,6 +23,7 @@
   * [`--awscli`](#--awscli)
 * [Other command line parameters](#other-command-line-parameters)
   * [`--outdir`](#--outdir)
+  * [`--publish_dir_mode`](#--publish_dir_mode)
   * [`--email`](#--email)
   * [`--email_on_fail`](#--email_on_fail)
   * [`--max_multiqc_email_size`](#--max_multiqc_email_size)
@@ -56,7 +56,7 @@ NXF_OPTS='-Xms1g -Xmx4g'
 The typical command for running the pipeline is as follows:
 
 ```bash
-nextflow run nf-core/simseqer --reads '*_R{1,2}.fastq.gz' -profile docker
+nextflow run nf-core/simseqer --input samplesheet.csv -profile docker
 ```
 
 This will launch the pipeline with the `docker` configuration profile. See below for more information about profiles.
@@ -104,11 +104,11 @@ They are loaded in sequence, so later profiles can overwrite earlier profiles.
 If `-profile` is not specified, the pipeline will run locally and expect all software to be installed and available on the `PATH`. This is _not_ recommended.
 
 * `docker`
-  * A generic configuration profile to be used with [Docker](http://docker.com/)
-  * Pulls software from dockerhub: [`nfcore/simseqer`](http://hub.docker.com/r/nfcore/simseqer/)
+  * A generic configuration profile to be used with [Docker](https://docker.com/)
+  * Pulls software from Docker Hub: [`nfcore/simseqer`](https://hub.docker.com/r/nfcore/simseqer/)
 * `singularity`
-  * A generic configuration profile to be used with [Singularity](http://singularity.lbl.gov/)
-  * Pulls software from DockerHub: [`nfcore/simseqer`](http://hub.docker.com/r/nfcore/simseqer/)
+  * A generic configuration profile to be used with [Singularity](https://sylabs.io/docs/)
+  * Pulls software from Docker Hub: [`nfcore/simseqer`](https://hub.docker.com/r/nfcore/simseqer/)
 * `conda`
   * Please only use Conda as a last resort i.e. when it's not possible to run the pipeline with Docker or Singularity.
   * A generic configuration profile to be used with [Conda](https://conda.io/docs/)
@@ -119,31 +119,32 @@ If `-profile` is not specified, the pipeline will run locally and expect all sof
 
 <!-- TODO nf-core: Document required command line parameters -->
 
-### `--reads`
+### `--input`
 
-Use this to specify the location of your input FastQ files. For example:
-
-```bash
---reads 'path/to/data/sample_*_{1,2}.fastq'
-```
-
-Please note the following requirements:
-
-1. The path must be enclosed in quotes
-2. The path must have at least one `*` wildcard character
-3. When using the pipeline with paired end data, the path must use `{1,2}` notation to specify read pairs.
-
-If left unspecified, a default pattern is used: `data/*{1,2}.fastq.gz`
-
-### `--single_end`
-
-By default, the pipeline expects paired-end data. If you have single-end data, you need to specify `--single_end` on the command line when you launch the pipeline. A normal glob pattern, enclosed in quotation marks, can then be used for `--reads`. For example:
+You will need to create a samplesheet with information about the samples you would like to analyse before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 3 columns, and a header row as shown in the examples below.
 
 ```bash
---single_end --reads '*.fastq'
+--input '[path to samplesheet file]'
 ```
 
-It is not possible to run a mixture of single-end and paired-end files in one run.
+#### Format
+
+The `sample` identifiers have to be the same when you have re-sequenced the same sample more than once (e.g. to increase sequencing depth). The pipeline will perform the analysis in parallel, and subsequently merge them when required.
+
+A final design file may look something like the one below. `SAMPLE_1` was sequenced twice in Illumina PE format and `SAMPLE_2` was sequenced once in Illumina SE format.
+
+```bash
+sample,fastq_1,fastq_2
+SAMPLE_1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz
+SAMPLE_1,AEG588A1_S1_L003_R1_001.fastq.gz,AEG588A1_S1_L003_R2_001.fastq.gz
+SAMPLE_2,AEG588A2_S4_L003_R1_001.fastq.gz,
+```
+
+| Column    | Description                                                                                                                |
+|-----------|----------------------------------------------------------------------------------------------------------------------------|
+| `sample`  | Custom sample name. This entry will be identical for multiple sequencing libraries/runs from the same sample.              |
+| `fastq_1` | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz". |
+| `fastq_2` | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz". |
 
 ## Reference genomes
 
@@ -236,6 +237,10 @@ Please make sure to also set the `-w/--work-dir` and `--outdir` parameters to a 
 ### `--outdir`
 
 The output directory where the results will be saved.
+
+### `--publish_dir_mode`
+
+Value passed to Nextflow [`publishDir`](https://www.nextflow.io/docs/latest/process.html#publishdir) directive for publishing results in the output directory. Available: 'symlink', 'rellink', 'link', 'copy', 'copyNoFollow' and 'move' (Default: 'copy').
 
 ### `--email`
 

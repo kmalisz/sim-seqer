@@ -37,11 +37,11 @@ jobs:
         if: env.GIT_DIFF
         run: docker build --no-cache . -t kmalisz/sim-seqer:dev
 
-      - name: Pull docker image
-        if: ${{ !env.GIT_DIFF }}
-        run: |
-          docker pull kmalisz/sim-seqer:dev
-          docker tag kmalisz/sim-seqer:dev kmalisz/sim-seqer:dev
+      # - name: Pull docker image
+      #   if: ${{ !env.GIT_DIFF }}
+      #   run: |
+      #     docker pull kmalisz/sim-seqer:dev
+      #     docker tag kmalisz/sim-seqer:dev kmalisz/sim-seqer:dev
 
       - name: Install Nextflow
         run: |

@@ -19,12 +19,12 @@ jobs:
         run: |
           wget -qO- get.nextflow.io | bash
           sudo mv nextflow /usr/local/bin/
-      # - name: Pull docker image
-      #   run: |
-      #     docker pull nfcore/simseqer:dev
-      #     docker tag nfcore/simseqer:dev nfcore/simseqer:dev
-      # - name: Run pipeline with test data
-      #   run: |
-      #     # TODO nf-core: You can customise CI pipeline run tests as required
-      #     # (eg. adding multiple test runs with different parameters)
-      #     nextflow run ${GITHUB_WORKSPACE} -profile test,docker
+      - name: Pull docker image
+        run: |
+          docker pull *kmalisz/simseqer:dev
+          docker tag *kmalisz/simseqer:dev *kmalisz/simseqer:dev
+      - name: Run pipeline with test data
+        run: |
+      #    # TODO nf-core: You can customise CI pipeline run tests as required
+      #    # (eg. adding multiple test runs with different parameters)
+          nextflow run ${GITHUB_WORKSPACE} -profile test,docker

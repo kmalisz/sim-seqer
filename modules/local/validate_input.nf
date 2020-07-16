@@ -1,12 +1,3 @@
-#!/usr/bin/env nextflow
-
-nextflow.preview.dsl=2
-
-params.match = ''
-params.align = ''
-params.query = ''
-
-
 process VALIDATE_QUERY_FILE {
     input:
     file query
@@ -50,9 +41,4 @@ process VALIDATE_QUERY_FILE {
         fi
     done
     """
-}
-
-workflow {
-    query_ch = Channel.fromPath(params.query)
-    VALIDATE_QUERY_FILE(query_ch, params.match, params.align).view()
 }

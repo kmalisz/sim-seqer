@@ -15,3 +15,4 @@ dependencies:
   - bioconda::blast=2.9.0
   - conda-forge::pandas=1.0.5
   - conda-forge::dask=2.20.0
+  - conda-forge::fastparquet

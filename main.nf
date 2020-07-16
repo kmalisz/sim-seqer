@@ -54,9 +54,9 @@ ch_workflow_summary = Channel.value(workflow_summary)
 /*
  * Include local pipeline modules
  */
-include { OUTPUT_DOCUMENTATION } from './modules/local/output_documentation' params(params)
-include { GET_SOFTWARE_VERSIONS } from './modules/local/get_software_versions' params(params)
-include { CHECK_SAMPLESHEET; check_samplesheet_paths } from './modules/local/check_samplesheet' params(params)
+include './modules/local/output_documentation' params(params)
+include './modules/local/get_software_versions' params(params)
+include './modules/local/check_samplesheet' params(params)
 
 /*
  * Run the workflow

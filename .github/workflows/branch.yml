@@ -13,7 +13,7 @@ jobs:
       - name: Check PRs
         if: github.repository == 'kmalisz/sim-seqer'
         run: |
-          { [[ $(git remote get-url origin) == *kmalisz/sim-seqer]] && [[ $GITHUB_HEAD_REF = "dev" ]]; } || [[ $GITHUB_HEAD_REF == "patch" ]]
+          { [[ $(git remote get-url origin) == *kmalisz/sim-seqer ]] && [[ $GITHUB_HEAD_REF = "dev" ]]; } || [[ $GITHUB_HEAD_REF == "patch" ]]
 
 
       # If the above check failed, post a comment on the PR explaining the failure

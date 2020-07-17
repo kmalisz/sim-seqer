@@ -105,7 +105,7 @@ workflow {
     if (reference_path.exists()){
         ch_reference_files = Channel.fromPath( reference_path + '**/*.csv' )
     } else {
-        ch_reference_files = Channel.empty()
+        CONVERT_REFERENCE().set{ ch_reference_files }
     }
 }
 

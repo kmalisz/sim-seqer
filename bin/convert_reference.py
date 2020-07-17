@@ -2,25 +2,20 @@
 """
 The tool gets the data from data source and creates a structure of groupped files
 """
+import abc
 import argparse
-from pprint import pprint
+import logging
+import os
+
 import pandas as pd
 import yaml
-import abc
-import os
-import logging
 
 log = logging.getLogger(__name__)
-
-CSV_SOURCE_CONFIG_PROPS = {'csv'}
-POSTGRES_SOURCE_CONFIG_PROPS = {'get_group_query',
-                                'get_groups_query',
-                                'postgres_db_connection_string_env'}
 
 
 class ReferenceConverter(abc.ABC):
     def __init__(self, out_dir, group_by_columns):
-        self.group_by_columns = sorted(group_by_columns)
+        self.group_by_columns = sorted(set(group_by_columns))
         self.out_dir = out_dir
 
     def run(self):

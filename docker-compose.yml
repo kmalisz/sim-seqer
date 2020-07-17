@@ -1,0 +1,9 @@
+version: '3.3'
+services:
+  main:
+    image: sim-seqer
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./tests/data:/sim-seqer/tests/data

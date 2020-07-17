@@ -3,7 +3,7 @@
  */
 
 class Completion {
-    static void email(workflow, params, summary, run_name, baseDir, multiqc_report, log) {
+    static void email(workflow, params, summary, run_name, baseDir, log) {
 
         // Set up the e-mail variables
         def subject = "[$workflow.manifest.name] Successful: $workflow.runName"

@@ -91,7 +91,7 @@ include { VALIDATE_QUERY_FILE } from './modules/local/validate_input' params(par
  * Run the workflow
  */
 
-referene_path = file([params.references_dir, params.reference, params.match?.tokenize(' ').sort().join('.')].join('/'))
+reference_path = file([params.references_dir, params.reference, params.match?.tokenize(' ').sort().join('.')].join('/'))
 
 workflow {
 
@@ -99,11 +99,11 @@ workflow {
         .set { ch_query_valid }
 
     if (ch_query_valid) {
-        println(referene_path)
+        println(reference_path)
     }
 
-    if (referene_path.exists()){
-        ch_reference_files = Channel.fromPath( referene_path + '**/*.csv' )
+    if (reference_path.exists()){
+        ch_reference_files = Channel.fromPath( reference_path + '**/*.csv' )
     } else {
         ch_reference_files = Channel.empty()
     }
@@ -113,7 +113,6 @@ workflow {
  * Send completion email
  */
 workflow.onComplete {
-    def multiqc_report = []
-    Completion.email(workflow, params, summary, run_name, baseDir, multiqc_report, log)
+    Completion.email(workflow, params, summary, run_name, baseDir, log)
     Completion.summary(workflow, params, log)
 }

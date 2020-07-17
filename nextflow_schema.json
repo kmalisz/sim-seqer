@@ -19,6 +19,11 @@
                     "description": "Name of database which will be used as reference",
                     "default": ""
                 },
+                "references_dir": {
+                    "type": "string",
+                    "description": "Name of database which will be used as reference",
+                    "default": ""
+                },
                 "match": {
                     "type": "string",
                     "description": "List of match columns to filter reference database",

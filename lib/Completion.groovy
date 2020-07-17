@@ -34,20 +34,6 @@ class Completion {
         email_fields['summary']['Nextflow Build'] = workflow.nextflow.build
         email_fields['summary']['Nextflow Compile Timestamp'] = workflow.nextflow.timestamp
 
-        // TODO nf-core: If not using MultiQC, strip out this code (including params.max_multiqc_email_size)
-        // On success try attach the multiqc report
-        def mqc_report = null
-        try {
-            if (workflow.success) {
-                mqc_report = multiqc_report.getVal()
-                if (mqc_report.getClass() == ArrayList) {
-                    log.warn "[$workflow.manifest.name] Found multiple reports from process 'MULTIQC', will use only one"
-                    mqc_report = mqc_report[0]
-                }
-            }
-        } catch (all) {
-            log.warn "[$workflow.manifest.name] Could not attach MultiQC report to summary email"
-        }
 
         // Check if we are only sending emails on failure
         def email_address = params.email
@@ -67,7 +53,7 @@ class Completion {
         def email_html = html_template.toString()
 
         // Render the sendmail template
-        def smail_fields = [ email: email_address, subject: subject, email_txt: email_txt, email_html: email_html, baseDir: "$baseDir", mqcFile: mqc_report, mqcMaxSize: params.max_multiqc_email_size.toBytes() ]
+        def smail_fields = [ email: email_address, subject: subject, email_txt: email_txt, email_html: email_html, baseDir: "$baseDir", mqcFile: null, mqcMaxSize: 0 ]
         def sf = new File("$baseDir/assets/sendmail_template.txt")
         def sendmail_template = engine.createTemplate(sf).make(smail_fields)
         def sendmail_html = sendmail_template.toString()
@@ -82,9 +68,6 @@ class Completion {
             } catch (all) {
                 // Catch failures and try with plaintext
                 def mail_cmd = [ 'mail', '-s', subject, '--content-type=text/html', email_address ]
-                if ( mqc_report.size() <= params.max_multiqc_email_size.toBytes() ) {
-                    mail_cmd += [ '-A', mqc_report ]
-                }
                 mail_cmd.execute() << email_html
                 log.info "[$workflow.manifest.name] Sent summary e-mail to $email_address (mail)"
             }

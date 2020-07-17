@@ -16,3 +16,5 @@ RUN conda env export --name nf-core-simseqer-dev > nf-core-simseqer-dev.yml
 COPY bin/ /sim-seqer/bin
 ENV PATH /sim-seqer/bin:$PATH
 
+COPY tests/data /sim-seqer/tests/data
+

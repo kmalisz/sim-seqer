@@ -7,3 +7,4 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./tests/data:/sim-seqer/tests/data
+      - ./bin:/sim-seqer/bin

@@ -1,0 +1,12 @@
+oas-heavy-small:
+  source:
+    type: csv
+
+oas-light-small:
+  source:
+    type: csv
+
+oas-light:
+  source:
+    type: oas-db
+    postgres_db_connection_string_env: OAS_CONNECTION_STRING

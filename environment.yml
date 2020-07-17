@@ -14,5 +14,5 @@ dependencies:
   - bioconda::parasail-python=1.2
   - bioconda::blast=2.9.0
   - conda-forge::pandas=1.0.5
-  - conda-forge::dask=2.20.0
-  - conda-forge::fastparquet=0.4.1
+  - fastparquet=0.3.2
+  - conda-forge::pyyaml=5.3.1

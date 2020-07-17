@@ -1,0 +1,10 @@
+version: '3.3'
+services:
+  main:
+    image: nfcore/simseqer:dev
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./tests/data:/sim-seqer/tests/data
+      - ./bin:/sim-seqer/bin

@@ -23,29 +23,10 @@ if (params.help) {
 }
 
 /*
- * Stage config files
- */
-ch_multiqc_config = file("$baseDir/assets/multiqc_config.yaml", checkIfExists: true)
-ch_multiqc_custom_config = params.multiqc_config ? Channel.fromPath(params.multiqc_config, checkIfExists: true) : Channel.empty()
-ch_output_docs = file("$baseDir/docs/output.md", checkIfExists: true)
-ch_output_docs_images = file("$baseDir/docs/images/", checkIfExists: true)
-
-/*
  * Validate parameters
  */
 if (params.input) { ch_input = file(params.input, checkIfExists: true) } else { exit 1, "Input samplesheet file not specified!" }
 
-/*
- * Reference genomes
- */
-// TODO nf-core: Add any reference files that are needed
-// NOTE - FOR SIMPLICITY THIS IS NOT USED IN THIS PIPELINE
-// EXAMPLE ONLY TO DEMONSTRATE USAGE OF AWS IGENOMES
-if (params.genomes && params.genome && !params.genomes.containsKey(params.genome)) {
-    exit 1, "The provided genome '${params.genome}' is not available in the iGenomes file. Currently the available genomes are ${params.genomes.keySet().join(", ")}"
-}
-params.fasta = params.genomes[params.genome]?.fasta
-if (params.fasta) { ch_fasta = file(params.fasta, checkIfExists: true) }
 
 /*
  * Check parameters
@@ -76,12 +57,6 @@ ch_workflow_summary = Channel.value(workflow_summary)
 include { OUTPUT_DOCUMENTATION } from './modules/local/output_documentation' params(params)
 include { GET_SOFTWARE_VERSIONS } from './modules/local/get_software_versions' params(params)
 include { CHECK_SAMPLESHEET; check_samplesheet_paths } from './modules/local/check_samplesheet' params(params)
-
-/*
- * Include nf-core modules
- */
-include { FASTQC } from './modules/nf-core/fastqc' params(params)
-include { MULTIQC } from './modules/nf-core/multiqc' params(params)
 
 /*
  * Run the workflow

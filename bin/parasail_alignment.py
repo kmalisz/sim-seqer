@@ -57,7 +57,7 @@ def run_parasail(query, target, args):
     gaps = counts[' ']
     length = len(comp)
     gap_regex = re.compile(r'\s+')
-    return {
+    return { #todo fill up qend, send and qcov metrics
         'score': result.score,
         'qseqid': int(query.name),
         'sseqid': int(target.name),
@@ -74,7 +74,7 @@ def run_parasail(query, target, args):
         'length': length,
         'gaps': gaps,
         'gapopen': len(gap_regex.findall(comp)),
-        'qcov': round(float(length - gaps) / len(query.seq), 2)
+        'qcov': ''#round(float(length - gaps) / len(query.seq), 2)
     }
 
 

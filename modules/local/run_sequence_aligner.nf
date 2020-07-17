@@ -1,4 +1,3 @@
-#!/usr/bin/env nextflow
 /*
  * Run sequence alignment against reference
 */
@@ -17,6 +16,5 @@ process RUN_SEQUENCE_ALIGNER {
     parasail_alignment.py -query $query_path \
                      -target $target_path\
                      -out $output_path
-    REFERENCE_LIST=\$(cat $output_path)
     """
 }

@@ -51,8 +51,8 @@ def get_query_groups(args):
             identifier, args.list_of_targets)])
         dataframe_to_fasta(data, 'pair_id', sorted_align, output_path)
 
-    pd.DataFrame(queries_fasta_paths, columns=['identifier', 'query_fasta_path']).to_csv(args.output_query_fasta)
-    pd.DataFrame(references_paths, columns=['identifier', 'query_fasta_path']).to_csv(args.output_reference)
+    pd.DataFrame(queries_fasta_paths, columns=['identifier', 'query_fasta_path']).to_csv(args.output_query_fasta, index=False)
+    pd.DataFrame(references_paths, columns=['identifier', 'query_fasta_path']).to_csv(args.output_reference, index=False)
 
 
 def identifier_in_reference_paths(identifier, list_of_reference_paths):

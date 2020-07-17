@@ -96,9 +96,19 @@ class Schema {
         def Map summary = [:]
         if (workflow.revision) summary['Pipeline Release'] = workflow.revision
         summary['Run Name']         = run_name ?: workflow.runName
-        // TODO nf-core: Report custom parameters here
-        summary['Input']            = params.input
-        summary['Fasta File']       = params.fasta
+
+        summary['Query']            = params.query
+        summary['Match']            = params.match
+        summary['Align']            = params.align
+        summary['Reference']        = params.reference
+        summary['References Dir']   = params.references_dir
+        summary['Allow Refresh']    = params.allow_refresh
+        summary['Force Refresh']    = params.force_refresh
+        summary['Alignment Type']   = params.alignment_type
+        summary['Min Similarity']   = params.min_similarity
+        summary['Min Coverage']     = params.min_coverage
+        summary['Max N Gap Open']   = params.max_n_gap_open
+
         summary['Max Resources']    = "$params.max_memory memory, $params.max_cpus cpus, $params.max_time time per job"
         if (workflow.containerEngine) summary['Container'] = "$workflow.containerEngine - $workflow.container"
         summary['Output dir']       = params.outdir

@@ -14,20 +14,51 @@ nextflow.preview.dsl = 2
 /*
  * Print help message if required
  */
-if (params.help) {
-    // TODO nf-core: Update typical command used to run pipeline
-    def command = "nextflow run nf-core/simseqer --input samplesheet.csv -profile docker"
+def helpMessage() {
+    def command = "nextflow run main.nf --query query.csv --align h_cdr3 --match h_cdr3_len --reference oas -profile docker"
     log.info Headers.nf_core(workflow, params.monochrome_logs)
     log.info Schema.params_help("$baseDir/nextflow_schema.json", command)
+}
+
+if (params.help) {
+    helpMessage()
     exit 0
 }
 
 /*
  * Validate parameters
  */
-if (params.input) { ch_input = file(params.input, checkIfExists: true) } else { exit 1, "Input samplesheet file not specified!" }
+validParams = ['query', 'reference', 'references_dir', 'match', 'align', 'alignment_type', 'allow_refresh',
+               'force_refresh', 'min_similarity', 'min_coverage', 'max_n_gap_open', 'outdir', 'publish_dir_mode',
+               'name', 'email', 'email_on_fail', 'plaintext_email', 'monochrome_logs', 'tracedir', 'max_memory',
+               'max_cpus', 'max_time', 'config_profile_name', 'config_profile_description', 'help']
 
+error = []
+params.keySet().each { key ->
+	if( !validParams.contains(key) ) { error.add(key) }
+}
+if( !error.empty ) {
+	log.error "Unknown parameter: ${error}\n"
+	log.error "Valid parameters: ${validParams}\n"
+	helpMessage()
+	exit 1
+}
 
+if (params.query) { ch_query = file(params.query, checkIfExists: true) } else { exit 1, "Query file not specified!" }
+
+    // TODO: validate all params:
+/*
+        summary['Match']            = params.match
+        summary['Align']            = params.align
+        summary['Reference']        = params.reference
+        summary['References Dir']   = params.references_dir
+        summary['Allow Refresh']    = params.allow_refresh
+        summary['Force Refresh']    = params.force_refresh
+        summary['Alignment Type']   = params.alignment_type
+        summary['Min Similarity']   = params.min_similarity
+        summary['Min Coverage']     = params.min_coverage
+        summary['Max N Gap Open']   = params.max_n_gap_open
+*/
 /*
  * Check parameters
  */
@@ -54,41 +85,34 @@ ch_workflow_summary = Channel.value(workflow_summary)
 /*
  * Include local pipeline modules
  */
-include { OUTPUT_DOCUMENTATION } from './modules/local/output_documentation' params(params)
-include { GET_SOFTWARE_VERSIONS } from './modules/local/get_software_versions' params(params)
-include { CHECK_SAMPLESHEET; check_samplesheet_paths } from './modules/local/check_samplesheet' params(params)
+include { VALIDATE_QUERY_FILE } from './modules/local/validate_input' params(params)
 
 /*
  * Run the workflow
  */
+
+reference_path = file([params.references_dir, params.reference, params.match?.tokenize(' ').sort().join('.')].join('/'))
+
 workflow {
 
-    CHECK_SAMPLESHEET(ch_input)
-        .splitCsv(header:true, sep:',')
-        .map { check_samplesheet_paths(it) }
-        .set { ch_raw_reads }
+    VALIDATE_QUERY_FILE(ch_query, params.match, params.align)
+        .set { ch_query_valid }
 
-    FASTQC(ch_raw_reads)
+    if (ch_query_valid) {
+        println(reference_path)
+    }
 
-    OUTPUT_DOCUMENTATION(
-        ch_output_docs,
-        ch_output_docs_images)
-
-    GET_SOFTWARE_VERSIONS()
-
-    MULTIQC(
-        ch_multiqc_config,
-        ch_multiqc_custom_config.collect().ifEmpty([]),
-        FASTQC.out.collect(),
-        GET_SOFTWARE_VERSIONS.out.yml.collect(),
-        ch_workflow_summary)
+    if (reference_path.exists()){
+        ch_reference_files = Channel.fromPath( reference_path + '**/*.csv' )
+    } else {
+        ch_reference_files = Channel.empty()
+    }
 }
 
 /*
  * Send completion email
  */
 workflow.onComplete {
-    def multiqc_report = []
-    Completion.email(workflow, params, summary, run_name, baseDir, multiqc_report, log)
+    Completion.email(workflow, params, summary, run_name, baseDir, log)
     Completion.summary(workflow, params, log)
 }

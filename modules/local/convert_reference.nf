@@ -17,10 +17,10 @@ process CONVERT_REFERENCE {
         path 'reference_root', emit: outdir
 
     script:  // This script is bundled with the pipeline, in nf-core/simseqer/bin/
+    def ref = reference_csv.name != 'NO_FILE' ? "--reference-csv $reference_csv" : '--reference ' + reference
     """
-    convert_reference.py --reference $reference\
+    convert_reference.py $ref\
                          --grouping $grouping\
-                         --csv $reference_csv\
                          --outdir ./reference_root
     """
 }
@@ -29,6 +29,6 @@ process CONVERT_REFERENCE {
  * Run the workflow
  */
 workflow {
-    CONVERT_REFERENCE(params.reference, params.grouping, params.csv).outdir.view()
+    CONVERT_REFERENCE(params.reference, params.grouping, file(params.csv)).outdir.view()
 }
 

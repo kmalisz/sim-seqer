@@ -104,6 +104,7 @@ class Schema {
         summary['References Cache Dir']   = params.references_cache_dir
         summary['Allow Refresh']    = params.allow_refresh
         summary['Force Refresh']    = params.force_refresh
+        summary['Chunk Size']       = params.chunk_size
         summary['Alignment Type']   = params.alignment_type
         summary['Min Similarity']   = params.min_similarity
         summary['Min Coverage']     = params.min_coverage

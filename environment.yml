@@ -10,7 +10,6 @@ dependencies:
   - conda-forge::markdown=3.1.1
   - conda-forge::pymdown-extensions=6.0
   - conda-forge::pygments=2.5.2
-  # TODO nf-core: Add required software dependencies here
   - bioconda::parasail-python=1.2
   - bioconda::blast=2.9.0
   - conda-forge::pandas=1.0.5

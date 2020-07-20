@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#!/usr/bin/env python3
 
 import argparse
 import os
@@ -21,7 +21,7 @@ def main():
 
 
 def dataframe_to_fasta(df, id_column, align, output):
-    with open(output + '.fasta', 'w+') as fasta:
+    with open(output, 'w+') as fasta:
         for index, row in df.iterrows():
             fasta.write('>{}\n'.format(row[id_column]))
             fasta.write('{}\n'.format(''.join(row[align])))
@@ -39,9 +39,9 @@ def get_query_groups(args):
     references_paths = []
 
     for group, data in groups:
-        identifier = '.'.join([str(el) for el in list(group)])
-        output_dir = args.output + '.'.join(matches)
-        output_path = os.path.join(output_dir, identifier + '.fasta')
+        identifier = os.path.join(*['.'.join(map(str, el)) for el in list(zip(matches, group))])
+        output_dir = os.path.join(args.output, '.'.join(matches), identifier)
+        output_path = os.path.join(output_dir, 'query.fasta')
         queries_fasta_paths.append([identifier, output_path])
 
         if not os.path.exists(output_dir):
@@ -51,8 +51,10 @@ def get_query_groups(args):
             identifier, args.list_of_targets)])
         dataframe_to_fasta(data, 'pair_id', sorted_align, output_path)
 
-    pd.DataFrame(queries_fasta_paths, columns=['identifier', 'query_fasta_path']).to_csv(args.output_query_fasta, index=False)
-    pd.DataFrame(references_paths, columns=['identifier', 'query_fasta_path']).to_csv(args.output_reference, index=False)
+    pd.DataFrame(queries_fasta_paths,
+                 columns=['identifier', 'query_fasta_path']).to_csv(args.output_query_fasta, index=False)
+    pd.DataFrame(references_paths,
+                 columns=['identifier', 'reference_csv_path']).to_csv(args.output_reference, index=False)
 
 
 def identifier_in_reference_paths(identifier, list_of_reference_paths):

@@ -18,7 +18,7 @@ process GET_QUERY_GROUPS {
     val match
 
     output:
-    path 'fasta_dir/*/*.fasta', emit: fasta_dir
+    path 'fasta_dir/**/*.fasta', emit: fasta_dir
     path 'query_fasta.csv', emit: query_fasta_csv
     path 'ref_paths.csv', emit: ref_paths_csv
 
@@ -26,7 +26,7 @@ process GET_QUERY_GROUPS {
     script:
     list_of_reference_files_space_separated = list_of_reference_files.join(' ')
     """
-    python3 get_query_groups.py -query $query -list-of-targets $list_of_reference_files_space_separated -align $align -match $match -output 'fasta_dir/' \
+    get_query_groups.py -query $query -list-of-targets $list_of_reference_files_space_separated -align $align -match $match -output 'fasta_dir/' \
     --output-query-fasta 'query_fasta.csv' --output-reference 'ref_paths.csv'
     """
 }

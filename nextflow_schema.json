@@ -53,6 +53,11 @@
                     "description": "",
                     "default": false
                 },
+                "chunk_size": {
+                    "type": "integer",
+                    "description": "",
+                    "default": 5000
+                },
                 "min_similarity": {
                     "type": "string",
                     "description": "",

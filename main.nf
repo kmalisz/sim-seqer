@@ -29,9 +29,10 @@ if (params.help) {
  * Validate parameters
  */
 validParams = ['query', 'reference', 'references_cache_dir', 'match', 'align', 'alignment_type', 'allow_refresh',
-               'force_refresh', 'min_similarity', 'min_coverage', 'max_n_gap_open', 'outdir', 'publish_dir_mode',
-               'name', 'email', 'email_on_fail', 'plaintext_email', 'monochrome_logs', 'tracedir', 'max_memory',
-               'max_cpus', 'max_time', 'config_profile_name', 'config_profile_description', 'help']
+               'force_refresh', 'chunk_size', 'min_similarity', 'min_coverage', 'max_n_gap_open', 'outdir',
+               'publish_dir_mode', 'name', 'email', 'email_on_fail', 'plaintext_email', 'monochrome_logs',
+               'tracedir', 'max_memory', 'max_cpus', 'max_time', 'config_profile_name', 'config_profile_description',
+               'help']
 
 error = []
 params.keySet().each { key ->
@@ -100,6 +101,9 @@ ch_workflow_summary = Channel.value(workflow_summary)
  */
 include { VALIDATE_QUERY_FILE } from './modules/local/validate_input' params(params)
 include { CONVERT_REFERENCE } from './modules/local/convert_reference' params(params)
+include { GET_QUERY_GROUPS } from './modules/local/get_query_groups' params(params)
+include { FORMAT_REFERENCE_CHUNKS } from './modules/local/format_reference_chunks' params(params)
+include { RUN_SEQUENCE_ALIGNER } from './modules/local/run_sequence_aligner' params(params)
 
 /*
  * Run the workflow
@@ -121,7 +125,50 @@ workflow {
     } else {
 	    exit 1, 'Reference data not found (${reference_path}) and reference refresh not allowed'
     }
+
+    GET_QUERY_GROUPS(ch_query, ch_reference_files.collect(), params.align, params.match)
+        .set{ ch_query_groups }
+
+    ch_query_groups.ref_paths_csv
+        .splitCsv(header:true)
+        .map{ row-> [row.identifier, file(row.reference_csv_path)] }
+        .set { ch_reference_tuple }
+
+    ch_query_groups.query_fasta_csv
+        .splitCsv(header:true)
+        .map{ row-> [row.identifier, row.query_fasta_path] }
+        .set { ch_fasta_metadata }
+
+    ch_query_groups.fasta_dir
+        .flatten()
+        .spread(ch_fasta_metadata)
+        .filter { it[0].endsWith(it[2]) }
+        .map { it -> [it[1], it[0]]}
+        .set { ch_query_tuple }
+
+    FORMAT_REFERENCE_CHUNKS(ch_reference_tuple, params.chunk_size)
+        .set {ch_chunked_reference_files_tuple}
+
+    ch_aligner_input = ch_chunked_reference_files_tuple.join(ch_query_tuple)
+
+    RUN_SEQUENCE_ALIGNER(ch_aligner_input, params.alignment_type,
+                         params.min_similarity, params.min_coverage, params.max_n_gap_open)
+        .set { ch_aligner_results }
+
+    ch_aligner_results
+        .flatten()
+        .collectFile(storeDir: params.outdir)
+
+    // TODO: remove following prints they are only for dev purposes
     ch_reference_files.view()
+    ch_chunked_reference_files_tuple.view()
+
+    ch_reference_tuple.view()
+    ch_query_tuple.view()
+    ch_aligner_input.view()
+    ch_aligner_results.view()
+
+
 }
 
 /*

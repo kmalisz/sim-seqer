@@ -146,7 +146,7 @@ workflow {
         .map { it -> [it[1], it[0]]}
         .set { ch_query_tuple }
 
-    FORMAT_REFERENCE_CHUNKS(ch_reference_tuple, params.chunk_size)
+    FORMAT_REFERENCE_CHUNKS(ch_reference_tuple, params.chunk_size, params.align)
         .set {ch_chunked_reference_files_tuple}
 
     ch_aligner_input = ch_chunked_reference_files_tuple.join(ch_query_tuple)

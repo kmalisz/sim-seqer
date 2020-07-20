@@ -101,7 +101,7 @@ class Schema {
         summary['Match']            = params.match
         summary['Align']            = params.align
         summary['Reference']        = params.reference
-        summary['References Dir']   = params.references_dir
+        summary['References Cache Dir']   = params.references_cache_dir
         summary['Allow Refresh']    = params.allow_refresh
         summary['Force Refresh']    = params.force_refresh
         summary['Alignment Type']   = params.alignment_type

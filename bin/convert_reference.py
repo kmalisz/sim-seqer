@@ -93,16 +93,21 @@ reference_converter_klass_by_source_type = {
 def main():
     print(__file__)
     args = get_args()
+    validate_args(args)
     log.info(f'Reading config from {os.path.realpath(args.config)}')
-    references_config = parse_config(args.config)
-    reference_config = references_config[args.reference]
+
+    if args.reference:
+        references_config = parse_config(args.config)
+        reference_config = references_config[args.reference]
 
     log.info(f'Starting creating reference {args.reference} grouped by {args.grouping} columns')
-    source_type = reference_config['source']['type']
-    if source_type == 'csv':
-        converter = CsvReferenceConverter(args.csv, args.outdir, args.grouping)
+
+    if args.reference_csv:
+        converter = CsvReferenceConverter(args.reference_csv, args.outdir, args.grouping)
+    elif args.reference:
+        raise ValueError(f'Unsupported reference {args.reference}')
     else:
-        raise ValueError(f'Unsupported source type {source_type}')
+        raise ValueError('Either --reference-csv or --reference has to be specified')
 
     converter.run()
 
@@ -112,16 +117,23 @@ def main():
 def get_args():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--config', default=os.path.join(os.path.dirname(__file__), 'converter-config.yml'))
-    parser.add_argument('--reference', help='name of reference from config file to be refreshed',
-                        required=True)
+    parser.add_argument('--reference', help='name of reference from config file to be refreshed')
+    parser.add_argument('--reference-csv', help='Path to csv file. Exclusive for for csv reference '
+                                                'source type')
     parser.add_argument('--grouping', nargs='*', help='Space separated list of columns by which '
                                                       'the program will group data',
                         required=True)
     parser.add_argument('--outdir', help='Path where the reference files will be stored',
                         required=True)
-    parser.add_argument('--csv', help='Path to csv file. Exclusive for for csv reference '
-                                      'source type')
     return parser.parse_args()
+
+
+def validate_args(args):
+    if args.reference is None and args.reference_csv is None:
+        raise ValueError('You have to provide either reference name (--reference) or '
+                         'csv path (--reference-csv)')
+    if args.reference and args.reference_csv:
+        raise ValueError('Only one of --reference and --reference-csv can be passed')
 
 
 def parse_config(config_path):

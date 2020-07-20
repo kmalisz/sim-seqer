@@ -19,7 +19,7 @@
                     "description": "Name of database which will be used as reference",
                     "default": ""
                 },
-                "references_dir": {
+                "references_cache_dir": {
                     "type": "string",
                     "description": "Name of database which will be used as reference",
                     "default": ""

@@ -25,12 +25,13 @@ class Headers {
         String.format(
             """\n
             -${colors.dim}----------------------------------------------------${colors.reset}-
-                                                    ${colors.green},--.${colors.black}/${colors.green},-.${colors.reset}
-            ${colors.blue}        ___     __   __   __   ___     ${colors.green}/,-._.--~\'${colors.reset}
-            ${colors.blue}  |\\ | |__  __ /  ` /  \\ |__) |__         ${colors.yellow}}  {${colors.reset}
-            ${colors.blue}  | \\| |       \\__, \\__/ |  \\ |___     ${colors.green}\\`-._,-`-,${colors.reset}
-                                                    ${colors.green}`._,._,\'${colors.reset}
-            ${colors.purple}  ${workflow.manifest.name} v${workflow.manifest.version}${colors.reset}
+            ${colors.purple}     _   _____  ____   _____   ____     _          ${colors.reset}
+            ${colors.purple}    / \\ |_   _||  _ \\ | ____| / ___|   / \\      ${colors.reset}
+            ${colors.purple}   / _ \\  | |  | |_) ||  _|  | |      / _ \\      ${colors.reset}
+            ${colors.purple}  / ___ \\ | |  |  _ < | |___ | |___  / ___ \\     ${colors.reset}
+            ${colors.purple} /_/   \\_\\|_|  |_| \\_\\|_____| \\____|/_/   \\_\\ ${colors.reset}
+
+            ${colors.green}  ${workflow.manifest.name} v${workflow.manifest.version}${colors.reset}
             -${colors.dim}----------------------------------------------------${colors.reset}-
             """.stripIndent()
         )

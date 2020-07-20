@@ -28,7 +28,7 @@ if (params.help) {
 /*
  * Validate parameters
  */
-validParams = ['query', 'reference', 'references_dir', 'match', 'align', 'alignment_type', 'allow_refresh',
+validParams = ['query', 'reference', 'references_cache_dir', 'match', 'align', 'alignment_type', 'allow_refresh',
                'force_refresh', 'min_similarity', 'min_coverage', 'max_n_gap_open', 'outdir', 'publish_dir_mode',
                'name', 'email', 'email_on_fail', 'plaintext_email', 'monochrome_logs', 'tracedir', 'max_memory',
                'max_cpus', 'max_time', 'config_profile_name', 'config_profile_description', 'help']
@@ -49,11 +49,11 @@ if (params.query) { ch_query = file(params.query, checkIfExists: true) } else { 
 if (params.reference && params.reference.endsWith('.csv')) {
     reference = 'csv'
     reference_csv = file(params.reference, checkIfExists: true)
-    reference_path = file([params.references_dir, reference, params.match?.tokenize(' ').sort().join('.')].join('/'))
+    reference_path = file([params.references_cache_dir, reference, params.match?.tokenize(' ').sort().join('.')].join('/'))
 } else {
     reference = params.reference
     reference_csv = file('NO_FILE')
-    reference_path = file([params.references_dir, reference, params.match?.tokenize(' ').sort().join('.')].join('/'))
+    reference_path = file([params.references_cache_dir, reference, params.match?.tokenize(' ').sort().join('.')].join('/'))
 }
 
 
@@ -63,7 +63,7 @@ if (params.reference && params.reference.endsWith('.csv')) {
         summary['Match']            = params.match
         summary['Align']            = params.align
         summary['Reference']        = params.reference
-        summary['References Dir']   = params.references_dir
+        summary['References Cache Dir']   = params.references_cache_dir
         summary['Allow Refresh']    = params.allow_refresh
         summary['Force Refresh']    = params.force_refresh
         summary['Alignment Type']   = params.alignment_type
@@ -113,11 +113,13 @@ workflow {
 
     print(reference_path)
 
-    if (reference_path.exists() && ch_query_valid){
+    if (reference_path.exists() && !params.force_refresh && ch_query_valid){
         ch_reference_files = Channel.fromPath( reference_path + '**/*.parquet' )
-    } else if (ch_query_valid) {
+    } else if (ch_query_valid && params.allow_refresh) {
         CONVERT_REFERENCE(reference, params.match, reference_csv)
             .set { ch_reference_files }
+    } else {
+	    exit 1, 'Reference data not found (${reference_path}) and reference refresh not allowed'
     }
     ch_reference_files.view()
 }

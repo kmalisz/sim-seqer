@@ -9,7 +9,7 @@ params.outdir = ''
 
 process CONVERT_REFERENCE {
     // TODO: Publish only database references which should be cashed not csv
-    publishDir "${params.references_dir}", pattern: 'reference_root/**', saveAs: { filename -> filename.replace('reference_root/', '') },  mode: params.publish_dir_mode
+    publishDir "${params.references_cache_dir}", pattern: 'reference_root/**', saveAs: { filename -> filename.replace('reference_root/', '') },  mode: params.publish_dir_mode
 
     input:
         val reference
@@ -25,6 +25,7 @@ process CONVERT_REFERENCE {
     convert_reference.py $ref\
                          --grouping $grouping\
                          --outdir ./reference_root/$reference
+
     """
 }
 

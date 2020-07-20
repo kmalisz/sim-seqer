@@ -10,13 +10,20 @@ import parasail
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-query', help='query file path', type=str)
-    parser.add_argument('-target', help='target file path', type=str)
-    parser.add_argument('-out', help='output file path', type=str)
-    parser.add_argument('--gap', type=int, default=11)
-    parser.add_argument('--match', type=int, default=1)
-    parser.add_argument('--method', type=str, default='nw')
-    parser.add_argument('--min-similarity', type=float, default=0.8)
+    parser.add_argument('-query', help='Query file path', type=str)
+    parser.add_argument('-target', help='Target file path', type=str)
+    parser.add_argument('-out', help='Output file path', type=str)
+    parser.add_argument('--gap', help='Cost to open a new gap',
+                        type=int, default=11)
+    parser.add_argument('--match', help='Reward for a match', type=int, default=1)
+    parser.add_argument('--method', help='Alignment method. Global: nw, local: sw',
+                        type=str, default='nw', choices=['nw', 'sw'])
+    parser.add_argument('--min-similarity', help='Minimal similarity required to return a match',
+                        type=float, default=0.7)
+    parser.add_argument('--min-coverage', help='Minimal coverage required to return a match',
+                        type=float, default=0.9)
+    parser.add_argument('--max-n-gap-open', help='Maximum allowed gap openings for match to be returned',
+                        type=int, default=1)
     args = parser.parse_args()
     parasail_alignment(args)
 
@@ -28,16 +35,15 @@ def parasail_alignment(args):
     targets = [target for target in loaded_targets if len(target.seq) > 0]
     results = []
 
-    i = 0
     for query in queries:
         partial_results = get_alignment_results(query, targets, args)
-        results += [result for result in partial_results if result['similarity'] >= args.min_similarity]
-        i += 1
-        if i > 100:
-            break
-    dataframe = pd.DataFrame(results)
-    dataframe.to_csv(args.out + '.csv', index=False)
-    # dataframe.to_parquet(args.out + '.parq')
+        results += [result for result in partial_results if (
+                result['similarity'] >= args.min_similarity and
+                result['gapopen'] <= args.max_n_gap_open
+                #todo add check for qcov wehn ready
+                )]
+    results_df = pd.DataFrame(results)
+    results_df.to_parquet('{}.parq'.format(args.out))
 
 
 def get_alignment_results(query, targets, args):
@@ -48,7 +54,10 @@ def get_alignment_results(query, targets, args):
 
 
 def run_parasail(query, target, args):
-    result = parasail.nw_trace_scan_16(query.seq, target.seq, args.gap, args.match, parasail.blosum62)
+    if args.method == 'nw':
+        result = parasail.nw_trace_scan_16(query.seq, target.seq, args.gap, args.match, parasail.blosum62)
+    elif args.method == 'sw':
+        result = parasail.sw_trace_scan_16(query.seq, target.seq, args.gap, args.match, parasail.blosum62)
     comp = result.traceback.comp
     cigar = result.cigar
     counts = Counter(comp)

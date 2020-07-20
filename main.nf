@@ -46,6 +46,18 @@ if( !error.empty ) {
 
 if (params.query) { ch_query = file(params.query, checkIfExists: true) } else { exit 1, "Query file not specified!" }
 
+if (params.reference && params.reference.endsWith('.csv')) {
+    reference = 'csv'
+    reference_csv = file(params.reference, checkIfExists: true)
+    reference_path = file([params.references_dir, reference, params.match?.tokenize(' ').sort().join('.')].join('/'))
+} else {
+    reference = params.reference
+    reference_csv = file('NO_FILE')
+    reference_path = file([params.references_dir, reference, params.match?.tokenize(' ').sort().join('.')].join('/'))
+}
+
+
+
     // TODO: validate all params:
 /*
         summary['Match']            = params.match
@@ -59,6 +71,7 @@ if (params.query) { ch_query = file(params.query, checkIfExists: true) } else { 
         summary['Min Coverage']     = params.min_coverage
         summary['Max N Gap Open']   = params.max_n_gap_open
 */
+
 /*
  * Check parameters
  */
@@ -86,27 +99,27 @@ ch_workflow_summary = Channel.value(workflow_summary)
  * Include local pipeline modules
  */
 include { VALIDATE_QUERY_FILE } from './modules/local/validate_input' params(params)
+include { CONVERT_REFERENCE } from './modules/local/convert_reference' params(params)
 
 /*
  * Run the workflow
  */
 
-reference_path = file([params.references_dir, params.reference, params.match?.tokenize(' ').sort().join('.')].join('/'))
 
 workflow {
 
     VALIDATE_QUERY_FILE(ch_query, params.match, params.align)
         .set { ch_query_valid }
 
-    if (ch_query_valid) {
-        println(reference_path)
-    }
+    print(reference_path)
 
-    if (reference_path.exists()){
-        ch_reference_files = Channel.fromPath( reference_path + '**/*.csv' )
-    } else {
-        CONVERT_REFERENCE().set{ ch_reference_files }
+    if (reference_path.exists() && ch_query_valid){
+        ch_reference_files = Channel.fromPath( reference_path + '**/*.parquet' )
+    } else if (ch_query_valid) {
+        CONVERT_REFERENCE(reference, params.match, reference_csv)
+            .set { ch_reference_files }
     }
+    ch_reference_files.view()
 }
 
 /*

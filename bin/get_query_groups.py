@@ -10,8 +10,8 @@ from helpers import dataframe_to_fasta
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-query', help='query file path', type=str)
-    parser.add_argument('-list-of-targets', help='target file path', type=str, nargs='*')
-    parser.add_argument('-align', type=str, nargs='*')
+    parser.add_argument('-list-of-targets', help='target file path', type=str, nargs='+')
+    parser.add_argument('-align', type=str, nargs='+')
     parser.add_argument('-match', type=str, nargs='*')
     parser.add_argument('-output', type=str)
     parser.add_argument('--output-query-fasta', default='output_query_fasta.csv')
@@ -24,8 +24,7 @@ def main():
 def get_query_groups(args):
     query_df = pd.read_csv(args.query)
 
-    matches = list(set(args.match))
-    matches.sort()
+    matches = sorted(list(set(args.match)))
     groups = query_df.groupby(matches, as_index=False)
 
     sorted_align = sorted(list(set(args.align)))

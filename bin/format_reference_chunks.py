@@ -11,7 +11,7 @@ from helpers import dataframe_to_fasta
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-reference_file', help='reference file path', type=str)
-    parser.add_argument('-align', help='list of columns for alignment', type=str, nargs='*')
+    parser.add_argument('-align', help='list of columns for alignment', type=str, nargs='+')
     parser.add_argument('-chunk_size', help='Size of the output chunks', type=int)
     parser.add_argument('-output_dir', help='path to output directory', type=str)
 

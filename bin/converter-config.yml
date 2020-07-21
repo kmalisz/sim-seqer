@@ -1,4 +1,0 @@
-oas-light:
-  source:
-    type: oas-db
-    postgres_db_connection_string_env: OAS_CONNECTION_STRING

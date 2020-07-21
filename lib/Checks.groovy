@@ -15,22 +15,5 @@ class Checks {
         }
     }
 
-    static void hostname(workflow, params, log) {
-        Map colors = Headers.log_colours(params.monochrome_logs)
-        if (params.hostnames) {
-            def hostname = "hostname".execute().text.trim()
-            params.hostnames.each { prof, hnames ->
-                hnames.each { hname ->
-                    if (hostname.contains(hname) && !workflow.profile.contains(prof)) {
-                        log.info "=${colors.yellow}====================================================${colors.reset}=\n" +
-                                  "${colors.yellow}WARN: You are running with `-profile $workflow.profile`\n" +
-                                  "      but your machine hostname is ${colors.white}'$hostname'${colors.reset}.\n" +
-                                  "      ${colors.yellow_bold}Please use `-profile $prof${colors.reset}`\n" +
-                                  "=${colors.yellow}====================================================${colors.reset}="
-                    }
-                }
-            }
-        }
-    }
 }
 

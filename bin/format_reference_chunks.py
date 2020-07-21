@@ -14,6 +14,8 @@ def main():
     parser.add_argument('-align', help='list of columns for alignment', type=str, nargs='+')
     parser.add_argument('-chunk_size', help='Size of the output chunks', type=int)
     parser.add_argument('-output_dir', help='path to output directory', type=str)
+    parser.add_argument('--id_column_name', help='name of the id column',
+                        type=str, default='pair_id')
 
     args = parser.parse_args()
     format_chunks(args)
@@ -21,7 +23,7 @@ def main():
 
 def format_chunks(args):
     sorted_align = sorted(list(set(args.align)))
-    reference_df = pd.read_parquet(args.reference_file, columns=sorted_align + ['id'])
+    reference_df = pd.read_parquet(args.reference_file, columns=sorted_align + [args.id_column_name])
     reference_df['aligned'] = reference_df[sorted_align].apply(
         lambda row: ''.join(row.values.astype(str)), axis=1)
     reference_df.drop(columns=sorted_align, inplace=True)
@@ -31,7 +33,7 @@ def format_chunks(args):
 
     for i in range(0, reference_df.shape[0], args.chunk_size):
         chunk = reference_df[i: i+args.chunk_size]
-        dataframe_to_fasta(chunk, 'id', 'aligned',
+        dataframe_to_fasta(chunk, args.id_column_name, 'aligned',
                            os.path.join(args.output_dir, '{}.fasta'.format(i)))
 
 

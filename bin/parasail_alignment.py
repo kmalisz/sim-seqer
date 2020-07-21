@@ -30,9 +30,9 @@ def main():
 
 def parasail_alignment(args):
     loaded_queries = parasail.sequences_from_file(args.query)
-    queries = [query for query in loaded_queries if len(query.seq) > 0]
+    queries = [loaded_queries[i] for i in range(len(loaded_queries)) if len(loaded_queries[i].seq) > 0]
     loaded_targets = parasail.sequences_from_file(args.target)
-    targets = [target for target in loaded_targets if len(target.seq) > 0]
+    targets = [loaded_targets[i] for i in range(len(loaded_targets)) if len(loaded_targets[i].seq) > 0]
     results = []
 
     for query in queries:
@@ -43,7 +43,7 @@ def parasail_alignment(args):
             #todo add check for qcov when ready
             )]
     results_df = pd.DataFrame(results)
-    results_df.to_parquet('{}.parq'.format(args.out))
+    results_df.to_csv('{}'.format(args.out), index=False)
 
 
 def get_alignment_results(query, targets, args):

@@ -157,18 +157,7 @@ workflow {
 
     ch_aligner_results
         .flatten()
-        .collectFile(storeDir: params.outdir)
-
-    // TODO: remove following prints they are only for dev purposes
-    ch_reference_files.view()
-    ch_chunked_reference_files_tuple.view()
-
-    ch_reference_tuple.view()
-    ch_query_tuple.view()
-    ch_aligner_input.view()
-    ch_aligner_results.view()
-
-
+        .collectFile(storeDir: params.outdir, keepHeader: true)
 }
 
 /*

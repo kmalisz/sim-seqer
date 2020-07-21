@@ -16,8 +16,8 @@ def main():
     parser.add_argument('--gap', help='Cost to open a new gap',
                         type=int, default=11)
     parser.add_argument('--match', help='Reward for a match', type=int, default=1)
-    parser.add_argument('--method', help='Alignment method. Global: nw, local: sw',
-                        type=str, default='nw', choices=['nw', 'sw'])
+    parser.add_argument('--method', help='Alignment method',
+                        type=str, default='global', choices=['global', 'local'])
     parser.add_argument('--min-similarity', help='Minimal similarity required to return a match',
                         type=float, default=0.7)
     parser.add_argument('--min-coverage', help='Minimal coverage required to return a match',
@@ -54,9 +54,9 @@ def get_alignment_results(query, targets, args):
 
 
 def run_parasail(query, target, args):
-    if args.method == 'nw':
+    if args.method == 'global':
         result = parasail.nw_trace_scan_16(query.seq, target.seq, args.gap, args.match, parasail.blosum62)
-    elif args.method == 'sw':
+    elif args.method == 'local':
         result = parasail.sw_trace_scan_16(query.seq, target.seq, args.gap, args.match, parasail.blosum62)
     comp = result.traceback.comp
     cigar = result.cigar

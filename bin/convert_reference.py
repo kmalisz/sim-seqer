@@ -152,8 +152,8 @@ class OasReferenceConverter(ReferenceConverter):
             for column in ['id'] + self.group_by_columns
         ]
         query += ', '.join(select_statements) + ' '
-        # query += 'FROM (SELECT * from chain LIMIT 100) as chain '  # TODO remove limit (next line)
-        query += 'FROM chain '
+        query += 'FROM (SELECT * from chain LIMIT 10000) as chain '  # TODO remove limit (next line)
+        # query += 'FROM chain '
         query += 'JOIN data_unit on chain.data_unit_id = data_unit.id '
         query += "WHERE data_unit.chain='{}'".format(REFERENCES[self.reference_name]['chain'])
         return query

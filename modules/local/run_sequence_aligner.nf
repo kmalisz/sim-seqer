@@ -17,7 +17,9 @@ process RUN_SEQUENCE_ALIGNER {
     """
     mkdir results
     parasail_alignment.py -query $query_path \
-                     -target $target_path\
-                     -out ./results \
+                          -target $target_path \
+                          -out ./results/alignment.csv \
+                          --method $alignment_type \
+                          --max-n-gap-open $max_n_gap_open
     """
 }

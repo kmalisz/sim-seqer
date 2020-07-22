@@ -77,7 +77,6 @@ if (params.reference && params.reference.endsWith('.csv')) {
  * Check parameters
  */
 Checks.aws_batch(workflow, params)     // Check AWS batch settings
-Checks.hostname(workflow, params, log) // Check the hostnames against configured profiles
 
 /*
  * Print parameter summary
